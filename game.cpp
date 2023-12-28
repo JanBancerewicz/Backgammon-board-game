@@ -131,8 +131,158 @@ void clearPossibleMoves(player* p)
 }
 
 
+void printInfo()
+{
+	system("cls");
+	cout << "BACKGAMMON.EXE \taplikacja konsolowa" << endl;
+	cout << "Dostepne komendy: \t( MOVE {z} {do} ) \t( SAVE ) \t( LOAD ) \t( REPLAY ) \t( QUIT )\n" << endl;
+
+}
+
+
 void printBoard(board b)
 {
+
+	printInfo();
+	//step 1
+	for (int i = BSIZE/2; i < BSIZE; i++)
+	{
+		cout << "   " << i + 1;
+		if(i==BSIZE-HOMELEN-1) cout << "   |GR2 |";
+	}
+	cout << "   | GR2 |" << endl;
+	for (int i = 0;i < 33;i++)
+	{
+		cout << "=";
+	}
+	cout << "[BAR ]";
+	for (int i = 0;i < 33;i++)
+	{
+		cout << "=";
+	}
+	cout << "[COURT]";
+
+	cout << " bar{" << b.bar[0] << " , " << b.bar[1] << " }";
+	cout << " out{" << b.outside[0] << " , " << b.outside[1] << " }";
+	cout << " round{ " << b.round << " }" << endl;
+	for (int i = BSIZE / 2; i < BSIZE; i++)
+	{
+		cout << "   " << (b.tab[i] < 0 ? "" : " ") << b.tab[i];
+		if (i == BSIZE - HOMELEN - 1) cout << "   | " << (b.bar[0] > 9 ? "" : "0") << b.bar[0] << " |";
+		if (i == BSIZE - 1) cout << "   | " << (b.outside[0] > 9 ? "" : "0") << b.outside[0] << "  |";
+		
+
+	}
+	cout << endl;
+
+	//step 2
+	for (int j = 0;j <= 8;j++) // 8 pionkow
+	{
+
+		for (int i = BSIZE / 2; i < BSIZE; i++)
+		{
+			
+			if (b.tab[i] != 0)
+			{
+				cout << "   " << (b.tab[i] > j ? "a1" : (b.tab[i] < -j ? "B2" : ".."));
+			}
+			else
+			{
+				cout << "   ..";
+			}
+
+			if (i == BSIZE - HOMELEN - 1)
+			{
+				cout << "   | " << ( b.bar[0] > 8-j ? "a1 |" : "   |");
+	
+			}
+			if (i == BSIZE-1)
+			{
+				cout << "   |" << (b.outside[0] > 8 - j ? "a1 " : "   ") << (b.outside[0] > 2*8 - j + 1 ? "a1" : "  ") << "|";
+
+			}
+
+		}
+		cout << endl;
+	}
+
+	for (int i = 0;i < 30;i++)
+	{
+		cout << " ";
+	}
+	cout << "   [ 25 ]";
+
+	for (int i = 0;i < 30;i++)
+	{
+		cout << " ";
+	}
+	cout << "   [  0  ]"	<< endl;
+
+	//step 3
+	for (int j = 8;j >= 0;j--) // 8 pionkow
+	{
+
+		for (int i = BSIZE/2 - 1; i >= 0; i--)
+		{
+
+			if (b.tab[i] != 0)
+			{
+				cout << "   " << (b.tab[i] > j ? "a1" : (b.tab[i] < -j ? "B2" : ".."));
+			}
+			else
+			{
+				cout << "   ..";
+			}
+
+			if (i == HOMELEN)
+			{
+				cout << "   | " << (b.bar[1] > 8-j ? "B2 |" : "   |");
+			}
+			if (i == 0)
+			{
+				cout << "   |" << (b.outside[1] > 8 - j ? "B2 " : "   ") << (b.outside[1] > 2 * 8 - j + 1 ? "B2" : "  ") << "|";
+			}
+
+		}
+		cout << endl;
+	}
+
+	//step 4
+	for (int i = BSIZE /2 - 1; i >= 0; i--)
+	{
+		cout << "   " << (b.tab[i] < 0 ? "" : " ") << b.tab[i];
+		if (i ==HOMELEN) cout << "   | " << (b.bar[1] > 9 ? "" : "0") << b.bar[1] << " |";
+		if (i ==0) cout << "   | " << (b.outside[1] > 9 ? "" : "0") << b.outside[1] << "  |";
+
+	}
+	cout << endl;
+	for (int i = 0;i < 33;i++)
+	{
+		cout << "=";
+	}
+	cout << "[BAR ]";
+	for (int i = 0;i < 33;i++)
+	{
+		cout << "=";
+	}
+	cout << "[COURT]" << endl;
+	for (int i = BSIZE / 2 - 1; i >= 0; i--)
+	{
+		cout << "   "<<(i < 9 ? "0" : "") << i + 1;
+		if (i == HOMELEN) cout << "   |GR1 |";
+		if (i == 0) cout << "   | GR1 |";
+	}
+	cout << endl;
+
+
+	cout << endl;
+}
+
+
+void printBoardold(board b)
+{
+	//cout << "BACKGAMMON.EXE nr albumu 198099" << endl;
+	//cout << "Dostepne komendy: \t( MOVE {z} {do} ) \t( SAVE ) \t( LOAD ) \t( QUIT )\n" << endl;
 	for (int i = 0; i < BSIZE; i++)
 	{
 		cout << (i < 9 ? "0" : "") << i+1 << " ";
@@ -748,13 +898,19 @@ int checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 	int dublet = checkDbl(rollresult);
 	int os = checkOutside(p, b);
 	int diff = playerinput[1] - playerinput[0];
+	char c[ARR];
 
 	if (legal && os) //outside and wincondition
 	{
 		if (playerinput[1] == 0) { b->outside[p->id - 1]++; }
 		if (b->outside[p->id - 1] == MAXOUTSIDE)
 		{
+			system("cls");
+			printBoard(*b);
 			cout << "wygrana" << endl;
+			cout<< "wygral gracz " << p->id <<"\n\n\n\n\n\n\n\n\n\nWpisz cokolwiek, aby kontynuowac" << endl;
+			cin >> c;
+			
 			//return 100; //zwyciestwo // wywolaj int main() i zakoncz gre
 			main(); //todo todo todo GRATULACJE UZYTKOWNIKU WYGRALES IPHONE
 			//cin >> os;
@@ -1198,7 +1354,7 @@ void cloneHistory()
 
 int readinput(int rollresult[2], player* p, board* b, player* enemy,int a1,int a2)
 {
-
+	
 	/*int a = (p->mandatorymoves ? p->mandatorymoves : p->possiblemoves);
 	int ruchy[ARR][2];
 
@@ -1262,7 +1418,7 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy,int a1,int a
 			arg2 = a2;
 		}
 		else { cin >> playerinput; }
-
+		
 		if (!strcmp(playerinput, "quit") || !strcmp(playerinput, "QUIT")) { return -1; }
 		else if (!strcmp(playerinput, "save") || !strcmp(playerinput, "SAVE")) { i1 = 5; saveGame(*p, *enemy, *b);readinput(rollresult, p, b, enemy, 0, 0); }
 		else if (!strcmp(playerinput, "load") || !strcmp(playerinput, "LOAD")) { i1 = 5; loadGame(p, enemy, b,0); readinput(rollresult, p, b, enemy, 0, 0); }
@@ -1278,6 +1434,7 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy,int a1,int a
 
 			if (!checkMandatoryMove(p, b, resultinput))
 			{
+				
 				cout << "prosze wykonac obowiazkowe bicie" << endl;
 				if (checkDbl(rollresult)) { i1 = STOP; }
 				readinput(rollresult, p, b, enemy, 0, 0);
@@ -1498,7 +1655,10 @@ int main()
 		b.round++;
 		
 		//----------------------------------------------
-		cout << "---------------------------------------------------" << endl;
+		//system("cls");
+		printBoard(b);
+
+		//cout << "---------------------------------------------------" << endl;
 
 		p = roll(p1);
 		rollresult[0] = *(p + 0);
@@ -1509,7 +1669,9 @@ int main()
 		if (readinput(rollresult, &p1, &b, &p2, 0, 0) == -1) { return 0; }
 		b.round++;
 
-		cout << "---------------------------------------------------" << endl;
+		//system("cls");
+		printBoard(b);
+		//cout << "---------------------------------------------------" << endl;
 
 
 	}	
