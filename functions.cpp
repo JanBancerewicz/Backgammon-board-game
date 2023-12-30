@@ -7,14 +7,6 @@ using namespace std;
 
 
 
-void printLB()
-{
-	system("cls");
-	cout << "============================\n";
-	cout << "LEADERBOARD / HALL OF FAME:" << endl;
-}
-
-
 int checkDbl(int rollresult[2])
 {
 	if (rollresult[0] == rollresult[1])
@@ -68,9 +60,6 @@ int* roll(player* p)
 
 	p->roll[0] = x;
 	p->roll[1] = y;
-	p->movecount = 2;
-	if (x == y) { p->movecount = 4; }
-
 
 	return item;
 	//w miare randomowe xd
@@ -138,23 +127,15 @@ int getWinnerScore(player* p, board* b)
 {
 	int score = 1;
 
-	int enemy = (p->id == 1 ? 1 : 0);
-
-	if (b->bar[enemy] > 0)
+	if (b->bar[(1 - p->id)] > 0)
 	{
 		score += 2;
-		//cout<<"score += 2"<<endl;
 	}
 
-	if (b->outside[enemy] == 0)
+	if (b->outside[(1 - p->id)] == 0)
 	{
 		score += 1;
-		//cout << "score += 1 " << enemy << endl;
-
 	}
-	cout<<"score: "<<score<<endl;
-	cout<<"bar: "<< b->bar[enemy] <<endl;
-	cout<<"out: "<< b->outside[enemy] <<endl;
 
 	return score;
 }
@@ -163,6 +144,7 @@ int getWinnerScore(player* p, board* b)
 void printInfo(board b)
 {
 	//system("cls");
+	
 	cout << "BACKGAMMON.EXE \taplikacja konsolowa" << endl;
 	cout << "Dostepne komendy:   ( MOVE {z} {do} )   ( SAVE )   ( LOAD )   ( REPLAY )   ( QUIT )   ( LEADERBOARD )" << endl;
 	cout << " bar{" << b.bar[0] << " , " << b.bar[1] << " }";
@@ -318,8 +300,8 @@ void loadLeaderboard(board b)
 
 	fopen_s(&file, "leaderboard.txt", "r");
 
-	char ns[ARRL][ARR];//nicks
-	int sc[ARRL];//scores
+	char nicks[ARRL][ARR];
+	int scores[ARRL];
 
 	int i = 0;
 	while (!feof(file) && i < ARRL) {
@@ -331,32 +313,35 @@ void loadLeaderboard(board b)
 		int j = 0;
 		for (j;nick[j] != '\0';j++)
 		{
-			ns[i][j] = nick[j];
+			nicks[i][j] = nick[j];
 		}
 
-		ns[i][j] = '\0';
-		sc[i] = score;
+		nicks[i][j] = '\0';
+		scores[i] = score;
 		i++;
 	}
 	fclose(file);
+
+	//todo sortowanie
 
 	for (int k = 0; k < i; k++)
 	{
 		for (int l = 0; l < i - 1; l++)
 		{
-			if (sc[l] < sc[l + 1])
+			if (scores[l] < scores[l + 1])
 			{
-				swap(sc[l], sc[l + 1]);
-				swap(ns[l], ns[l + 1]);
+				swap(scores[l], scores[l + 1]);
+				swap(nicks[l], nicks[l + 1]);
 
 			}
 		}
 	}
-	printLB();
-
+	system("cls");
+	cout << "============================\n";
+	cout << "LEADERBOARD / HALL OF FAME:" << endl;
 	for (int k = 0;k < i;k++)
 	{
-		cout << "\t" << ns[k] << ": " << sc[k] << endl;
+		cout << "\t" << nicks[k] << ": " << scores[k] << endl;
 	}
 
 	cout << "\n\n\n\n\n";
@@ -380,14 +365,14 @@ void saveLeaderboard(char n[ARR], int p)
 
 	int i = 0;
 	while (!feof(f) && i < ARRL) {
-		char nk[ARR]; //nick
+		char nick[ARR]; //nick
 		int s; //score
-		fscanf_s(f, "%s %d ", nk, ARR, &s);
+		fscanf_s(f, "%s %d ", nick, ARR, &s);
 
 		int j = 0;
-		for (j;nk[j] != '\0';j++)
+		for (j;nick[j] != '\0';j++)
 		{
-			ns[i][j] = nk[j];
+			ns[i][j] = nick[j];
 		}
 
 		ns[i][j] = '\0';
@@ -408,7 +393,8 @@ void saveLeaderboard(char n[ARR], int p)
 	}
 
 	if (!found)
-	{		
+	{
+		i++;
 		int j = 0;
 		for (j;n[j] != '\0';j++)
 		{
@@ -417,7 +403,6 @@ void saveLeaderboard(char n[ARR], int p)
 
 		ns[i][j] = '\0';
 		sc[i] = p;
-		i++;
 	}
 
 	fopen_s(&f, "leaderboard.txt", "w"); //zapis do pliku
@@ -600,12 +585,7 @@ void getLegalDoubles(int rollresult, player* p, board b)
 	int i = 0, m = 0;
 	int br = b.bar[(p->id == 1 ? 0 : 1)];
 	int mandatorymoves[ARR][2]; //todofix
-	int mvs = p->movecount;
-	//cout <<"\tmvs:"<< mvs<<endl;
-	if (rollresult == 0)
-	{
-		rollresult = p->roll[0];
-	}
+
 
 	if (p->id == 1) { //jesli jestesmy graczem 1
 		if (br == 0) { //jesli nie jestesmy na barze
@@ -614,7 +594,7 @@ void getLegalDoubles(int rollresult, player* p, board b)
 				{
 					if (b.tab[h] > 0)
 					{
-						for (int k = 1;k <= mvs;k++) {
+						for (int k = 1;k <= 4;k++) {
 							if (h - rollresult * k >= 0) {
 								if (b.tab[h - rollresult * k] >= -1)
 								{
@@ -640,7 +620,7 @@ void getLegalDoubles(int rollresult, player* p, board b)
 		else if (br == 1)//jesli jestesmy na barze
 		{
 			if (rollresult != 0) {
-				for (int k = 1;k <= mvs;k++) {
+				for (int k = 1;k <= 4;k++) {
 					if (b.tab[BSIZE - rollresult * k] >= -1)
 					{
 						possiblemoves[i][0] = BAR;
@@ -672,7 +652,7 @@ void getLegalDoubles(int rollresult, player* p, board b)
 					if (b.tab[h] < 0)
 					{
 
-						for (int k = 1;k <= mvs;k++) {
+						for (int k = 1;k <= 4;k++) {
 							if (h + rollresult * k <= BSIZE - 1) {
 								if (b.tab[h + rollresult * k] <= 1)
 								{
@@ -691,7 +671,7 @@ void getLegalDoubles(int rollresult, player* p, board b)
 		else if (br == 1)//jesli jestesmy na barze
 		{
 			if (rollresult != 0) {
-				for (int k = 1;k <= mvs;k++) {
+				for (int k = 1;k <= 4;k++) {
 					if (b.tab[rollresult * k - 1] <= 1)
 					{
 						possiblemoves[i][0] = BAR;
@@ -1006,7 +986,7 @@ void getLegalMoves(int rollresult[2], player* p, board b)
 
 	p->possiblemoves = i;
 
-	if (p->roll[0]==p->roll[1] || p->movecount>2) { getLegalDoubles(rollresult[0], p, b); }
+	if (checkDbl(rollresult)) { getLegalDoubles(rollresult[0], p, b); }
 
 	if (checkOutside(p, &b)) { getLegalOutsides(rollresult, p, b); }
 
@@ -1030,23 +1010,20 @@ void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 				char nick[ARR];
 				//system("cls");
 				printBoard(*b);
-				int score = getWinnerScore(p, b);
-				cout << "\tWygrana! " << "Pojedynek wygral gracz " << p->id << ". Wynik: " << score << endl;
+				cout << "\tWygrana! " << "Pojedynek wygral gracz " << p->id << ". Wynik: " << getWinnerScore(p, b) << endl;
 				cout << "Podaj nick, ktory zostanie zapisany na liscie wynikow: ";
 
 				cin >> nick;
 
 				cout << nick << endl;
 
-				saveLeaderboard(nick, score);
+				saveLeaderboard(nick, 10);
 				//cout<< "wygral gracz " << p->id <<"\n\n\n\n\n\n\n\n\n\n"<<endl;
 
 				//zapis do pliku
 
 				//return 100; //zwyciestwo // wywolaj int main() i zakoncz gre
 				main(); //todo todo todo GRATULACJE UZYTKOWNIKU WYGRALES IPHONE // todo todo todo naprawione w zasadzie xd
-
-
 			}
 		}
 	}
@@ -1073,9 +1050,11 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 			//if (playerinput[0] == BAR) { diff = playerinput[1]; }
 			//if (playerinput[1] == 0) { diff = BAR - playerinput[0]; }
 
+			//todo possible bug z wchodzeniem na outside przy komendzie 18 0 i dublu (chyba nielegalne) jest git
+
 			if (diff == 3 * rollresult[0] && dublet) //dublety
 			{
-				//cout << "rekurencja 3:)" << endl;
+				cout << "rekurencja 3:)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 
 				int pi1[2] = { playerinput[0], playerinput[0] - rollresult[0] };
@@ -1089,7 +1068,6 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr1, p, b, pi1, enemy);
 					move(rr1, p, b, pi2, enemy);
 					move(rr1, p, b, pi3, enemy);
-					p->movecount -= 3;
 
 					checkWin(rollresult, p, b, playerinput);
 					return 3;
@@ -1101,7 +1079,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 			}
 			else if (diff == 4 * rollresult[0] && dublet)
 			{
-				//cout << "rekurencja 4:)" << endl;
+				cout << "rekurencja 4:)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 
 				int pi1[2] = { playerinput[0], playerinput[0] - rollresult[0] };
@@ -1116,7 +1094,6 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr1, p, b, pi2, enemy);
 					move(rr1, p, b, pi3, enemy);
 					move(rr1, p, b, pi4, enemy);
-					p->movecount -= 4;
 
 					checkWin(rollresult, p, b, playerinput);
 					return 4;
@@ -1128,7 +1105,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 			}
 			else if (diff > rollresult[0] && diff > rollresult[1])
 			{
-				//cout << "rekurencja :)" << endl;
+				cout << "rekurencja :)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 				int rr2[2] = { 0,rollresult[1] };
 				int pi1[2] = { playerinput[0], playerinput[0] - rollresult[0] };
@@ -1143,7 +1120,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 				cout << "rekurencja :)" << endl;*/
 
 
-				
+
 				if (isLegalMove(rollresult, p, b, pi3))
 				{
 					//cout << "opcja2" << endl;
@@ -1151,7 +1128,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr2, p, b, pi3, enemy);
 
 					move(rr1, p, b, pi4, enemy);
-					
+
 				}
 				else if (isLegalMove(rollresult, p, b, pi1))
 				{
@@ -1159,7 +1136,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr1, p, b, pi1, enemy);
 
 					move(rr2, p, b, pi2, enemy);
-					
+
 				}
 				else
 				{
@@ -1205,7 +1182,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 
 			if (diff == 3 * rollresult[0] && dublet) //dublety 2
 			{
-				//cout << "rekurencja 3:)" << endl;
+				cout << "rekurencja 3:)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 
 				int pi1[2] = { playerinput[0], newpi0 + rollresult[0] };
@@ -1219,7 +1196,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr1, p, b, pi1, enemy);
 					move(rr1, p, b, pi2, enemy);
 					move(rr1, p, b, pi3, enemy);
-					p->movecount -= 3;
+
 					checkWin(rollresult, p, b, playerinput);
 					return 3;
 				}
@@ -1230,7 +1207,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 			}
 			else if (diff == 4 * rollresult[0] && dublet)
 			{
-				//cout << "rekurencja 4:)" << endl;
+				cout << "rekurencja 4:)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 
 				int pi1[2] = { playerinput[0], newpi0 + rollresult[0] };
@@ -1245,7 +1222,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 					move(rr1, p, b, pi2, enemy);
 					move(rr1, p, b, pi3, enemy);
 					move(rr1, p, b, pi4, enemy);
-					p->movecount -= 4;
+
 					checkWin(rollresult, p, b, playerinput);
 					return 4;
 				}
@@ -1256,7 +1233,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 			}
 			else if (diff > rollresult[0] && diff > rollresult[1])
 			{
-				//cout << "rekurencja :)" << endl;
+				cout << "rekurencja :)" << endl;
 				int rr1[2] = { 0,rollresult[0] };
 				int rr2[2] = { 0,rollresult[1] };
 				int pi1[2] = { playerinput[0], newpi0 + rollresult[0] };
@@ -1268,7 +1245,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 				cout << pi2[0] << " " << pi2[1] << endl;
 				cout << pi3[0] << " " << pi3[1] << endl;
 				cout << pi4[0] << " " << pi4[1] << endl;*/
-				//cout << "rekurencja :)" << endl;
+				cout << "rekurencja :)" << endl;
 
 				if (isLegalMove(rollresult, p, b, pi1))
 				{
@@ -1333,13 +1310,11 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 
 		if (diff == rollresult[0] || (os && diff < rollresult[0])) //obsluga polowicznych ruchow
 		{
-			p->movecount--;
 			checkWin(rollresult, p, b, playerinput);
 			return 0;
 		}
 		else if (diff == rollresult[1] || (os && diff < rollresult[1]))
 		{
-			p->movecount--;
 			checkWin(rollresult, p, b, playerinput);
 			return 1;
 		}
@@ -1351,14 +1326,13 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 		//{
 		//	return 1;
 		//}
-		p->movecount-=2;
+
 		checkWin(rollresult, p, b, playerinput);
 		return 2;
 	}
 	else
 	{
 		cout << "nielegalny ruch " << playerinput[0] << " " << playerinput[1] << endl;
-		printHints(rollresult, p, b);
 		return -1;
 
 	}
@@ -1522,14 +1496,14 @@ int replayMode(player* p1, player* p2, board* b, int n)
 		n = len;
 	}
 
-	//cout << n << endl;
+	cout << n << endl;
 
-	//cout << "historia: ";
+	cout << "historia: ";
 	while (!feof(file) && i < n) { // cala historia
 		int a;
 		fscanf_s(file, "%d ", &a);
-		//cout << i << "-";
-		//cout << a << " ";
+		cout << i << "-";
+		cout << a << " ";
 
 		if (i % 5 == 0)
 		{
@@ -1561,7 +1535,7 @@ int replayMode(player* p1, player* p2, board* b, int n)
 		i++;
 		//}
 	}
-	//cout << endl << endl;
+	cout << endl << endl;
 	//cout << num << endl;
 	printBoard(*b);
 	fclose(file);
@@ -1571,7 +1545,7 @@ int replayMode(player* p1, player* p2, board* b, int n)
 	char pi[ARR];
 	while (1)
 	{
-		
+		//cout<<"gra here"<<endl;
 		cin >> pi;
 
 		if (!strcmp(pi, "quit") || !strcmp(pi, "QUIT")) { exit(1); return -1; }
@@ -1582,52 +1556,14 @@ int replayMode(player* p1, player* p2, board* b, int n)
 
 	}
 
+	//cout << "WYJSCIE Z FUNKCJI"<<endl;
 	return 0;
-}
-
-
-void printHints(int rollresult[2], player* p, board* b)
-{
-
-	getLegalMoves(rollresult, p, *b);
-
-	int a = p->possiblemoves;
-	int c = p->mandatorymoves;
-	if (b->bar[p->id - 1] > 0) { c = 0; }
-	int ruchy[ARR][2];
-
-	//if (a == 0 || p->movecount == 0) {
-	//	//cout << "pusta tablica" << endl;
-	//	//return 0;
-	//}
-	cout << "mozliwe ruchy: " << p->movecount << endl;
-
-	for (int i = 0; i < a; i++)
-	{
-		ruchy[i][0] = p->possiblemovesarr[i][0];
-		ruchy[i][1] = p->possiblemovesarr[i][1];
-
-		cout << (ruchy[i][0] > 9 ? "" : " ")<< ruchy[i][0] << " " << (ruchy[i][1] > 9 ? "" : " ") << ruchy[i][1] << ";  ";
-		if ( (i+1)%10 == 0)
-		{
-			cout << endl;
-		}
-		
-	}
-	cout << endl;
-	//cout << "liczba ruchow: " << a <<" xd " <<c<< endl;
-
-	for (int i = 0; i < c; i++)
-	{
-		cout << "Przymusowe bicie: " << p->mandatorymovesarr[i][0] << " " << p->mandatorymovesarr[i][1] << endl;
-
-	}
 }
 
 
 int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int a2)
 {
-	
+	getLegalMoves(rollresult, p, *b);
 
 	int i1 = 1;
 	if (rollresult[0] == rollresult[1])
@@ -1637,18 +1573,40 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int
 
 	for (i1; i1 < 2; i1++)
 	{
+		//cout<<"\t"<<i1 << endl;
 		rollInfo(p);
-		printHints(rollresult,p,b);
-		
 
 
 		char playerinput[MAXARGLEN];
 		int arg1, arg2;
 
-		if (p->possiblemoves == 0 || p->movecount <= 0) {
+
+		getLegalMoves(rollresult, p, *b);
+
+		int a = p->possiblemoves;
+		int c = p->mandatorymoves;
+		if (b->bar[p->id - 1] > 0) { c = 0; }
+		int ruchy[ARR][2];
+
+		if (a == 0) {
 			//cout << "pusta tablica" << endl;
-			printBoard(*b);
 			return 0;
+		}
+
+		for (int i = 0; i < a; i++)
+		{
+			ruchy[i][0] = p->possiblemovesarr[i][0];
+			ruchy[i][1] = p->possiblemovesarr[i][1];
+
+			cout << ruchy[i][0] << " " << ruchy[i][1] << endl;
+
+		}
+		//cout << "liczba ruchow: " << a <<" xd " <<c<< endl;
+
+		for (int i = 0; i < c; i++)
+		{
+			cout << "mm: " << p->mandatorymovesarr[i][0] << " " << p->mandatorymovesarr[i][1] << endl;
+
 		}
 
 
@@ -1670,7 +1628,7 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int
 		else if (!strcmp(playerinput, "leaderboard") || !strcmp(playerinput, "LEADERBOARD")) { i1 = 5; loadLeaderboard(*b); readinput(rollresult, p, b, enemy, 0, 0); }
 		else if (!strcmp(playerinput, "replay") || !strcmp(playerinput, "REPLAY")) {
 			i1 = 5; (p->id == 1 ? replayMode(p, enemy, b, -1) : replayMode(enemy, p, b, -1));readinput(rollresult, p, b, enemy, 0, 0);
-		}
+		} //todo dziala
 		else if (!strcmp(playerinput, "move") || !strcmp(playerinput, "MOVE"))
 		{
 			if (!(a1 && a2)) { cin >> arg1 >> arg2; }
@@ -1682,7 +1640,7 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int
 
 			if (!checkMandatoryMove(p, b, resultinput))
 			{
-				printBoard(*b);
+
 				cout << "prosze wykonac obowiazkowe bicie" << endl;
 				if (checkDbl(rollresult)) { i1 = STOP; }
 				readinput(rollresult, p, b, enemy, 0, 0);
@@ -1788,8 +1746,8 @@ int whoStarts(player* p1, board* b, player* p2)
 		cout << "\n\tGracz 2 zaczyna\n" << endl;
 		p1->id = 2;
 		p2->id = 1;
-		p1->roll[0] = x;
-		p1->roll[1] = y;
+		p2->roll[0] = x;
+		p2->roll[1] = y;
 
 		if (readinput(item, p1, b, p2, 0, 0) == -1) { return -1; }
 		b->round++;
