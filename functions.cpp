@@ -67,10 +67,9 @@ int* roll(player* p)
 	p->roll[0] = x;
 	p->roll[1] = y;
 	p->movecount = 2;
-	if (x == y) { p->movecount = 4; }
+	if (x == y) { p->movecount += 2; } //dodatkowe ruchy dla dubletu
 
 	return item;
-	//w miare randomowe xd
 }
 
 
@@ -92,8 +91,8 @@ void clearPossibleMoves(player* p)
 {
 	for (int i = 0; i < ARR; i++)
 	{
-		p->possiblemovesarr[i][0] = 0;
-		p->possiblemovesarr[i][1] = 0;
+		p->pmarr[i][0] = 0;
+		p->pmarr[i][1] = 0;
 	}
 	p->possiblemoves = 0;
 
@@ -156,7 +155,7 @@ int getWinnerScore(player* p, board* b)
 
 void printInfo(board b)
 {
-	system("cls");
+	//system("cls");
 	cout << "BACKGAMMON.EXE \taplikacja konsolowa" << endl;
 	cout << "Dostepne komendy:   ( MOVE {z} {do} )   ( SAVE )   ( LOAD )   ( REPLAY )   ( QUIT )   ( LEADERBOARD )" << endl;
 	cout << " bar{" << b.bar[0] << " , " << b.bar[1] << " }";
@@ -165,13 +164,8 @@ void printInfo(board b)
 
 }
 
-
-void printBoard(board b)
+void printBoard1(board b)
 {
-
-	printInfo(b);
-
-
 	//step 1
 	for (int i = BSIZE / 2; i < BSIZE; i++)
 	{
@@ -179,12 +173,12 @@ void printBoard(board b)
 		if (i == BSIZE - HOMELEN - 1) cout << "   |GR2 |";
 	}
 	cout << "   | GR2 | POINTS: " << calculatePoints(b, 1) << endl;
-	for (int i = 0;i < 33;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << "=";
 	}
 	cout << "[BAR ]";
-	for (int i = 0;i < 33;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << "=";
 	}
@@ -200,9 +194,12 @@ void printBoard(board b)
 
 	}
 	cout << endl;
+}
 
+void printBoard2(board b)
+{
 	//step 2
-	for (int j = 0;j <= 8;j++) // 8 pionkow
+	for (int j = 0;j <= BRDHEIGHT;j++) // 8 pionkow
 	{
 
 		for (int i = BSIZE / 2; i < BSIZE; i++)
@@ -219,12 +216,12 @@ void printBoard(board b)
 
 			if (i == BSIZE - HOMELEN - 1)
 			{
-				cout << "   | " << (b.bar[1] > 8 - j ? "B2 |" : "   |");
+				cout << "   | " << (b.bar[1] > BRDHEIGHT - j ? "B2 |" : "   |");
 
 			}
 			if (i == BSIZE - 1)
 			{
-				cout << "   |" << (b.outside[1] > 8 - j ? "B2 " : "   ") << (b.outside[1] > 2 * 8 - j + 1 ? "B2" : "  ") << "|";
+				cout << "   |" << (b.outside[1] > BRDHEIGHT - j ? "B2 " : "   ") << (b.outside[1] > 2 * BRDHEIGHT - j + 1 ? "B2" : "  ") << "|";
 
 			}
 
@@ -232,20 +229,23 @@ void printBoard(board b)
 		cout << endl;
 	}
 
-	for (int i = 0;i < 30;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << " ";
 	}
-	cout << "   [ 25 ]";
+	cout << "[ 25 ]";
 
-	for (int i = 0;i < 30;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << " ";
 	}
-	cout << "   [  0  ]" << endl;
+	cout << "[  0  ]" << endl;
+}
 
+void printBoard3(board b)
+{
 	//step 3
-	for (int j = 8;j >= 0;j--) // 8 pionkow
+	for (int j = BRDHEIGHT;j >= 0;j--) // 8 pionkow
 	{
 
 		for (int i = BSIZE / 2 - 1; i >= 0; i--)
@@ -262,18 +262,21 @@ void printBoard(board b)
 
 			if (i == HOMELEN)
 			{
-				cout << "   | " << (b.bar[0] > 8 - j ? "a1 |" : "   |");
+				cout << "   | " << (b.bar[0] > BRDHEIGHT - j ? "a1 |" : "   |");
 			}
 			if (i == 0)
 			{
-				cout << "   |" << (b.outside[0] > 8 - j ? "a1 " : "   ") << (b.outside[0] > 2 * 8 - j + 1 ? "a1" : "  ") << "|";
+				cout << "   |" << (b.outside[0] > BRDHEIGHT - j ? "a1 " : "   ") << (b.outside[0] > 2 * BRDHEIGHT - j + 1 ? "a1" : "  ") << "|";
 
 			}
 
 		}
 		cout << endl;
 	}
+}
 
+void printBoard4(board b)
+{
 	//step 4
 	for (int i = BSIZE / 2 - 1; i >= 0; i--)
 	{
@@ -283,12 +286,12 @@ void printBoard(board b)
 
 	}
 	cout << endl;
-	for (int i = 0;i < 33;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << "=";
 	}
 	cout << "[BAR ]";
-	for (int i = 0;i < 33;i++)
+	for (int i = 0;i < BRDWIDTH;i++)
 	{
 		cout << "=";
 	}
@@ -303,6 +306,26 @@ void printBoard(board b)
 
 
 	cout << endl;
+}
+
+
+void printBoard(board b)
+{
+
+	printInfo(b);
+
+	printBoard1(b);
+	printBoard2(b);
+	printBoard3(b);
+	printBoard4(b);
+
+	//step 1
+
+	//step 2
+
+	//step 3
+
+	//step 4
 }
 
 
@@ -431,7 +454,7 @@ int isLegalMove(int rollresult[2], player* p, board* b, int playerinput[2])
 
 	for (int j = 0; j < p->possiblemoves; j++)
 	{
-		if (p->possiblemovesarr[j][0] == playerinput[0] && p->possiblemovesarr[j][1] == playerinput[1])
+		if (p->pmarr[j][0] == playerinput[0] && p->pmarr[j][1] == playerinput[1])
 		{
 			//cout << "legalny ruch" << endl;
 			return 1;
@@ -475,253 +498,365 @@ int checkOutside(player* p, board* b)
 }
 
 
-void getLegalOutsides(int rollresult[2], player* p, board b)
+void getLegalOutsides1(int rr[2], player* p, board b)
 {
-	int possiblemoves[ARR][2];
+	//rr = rollresult
+	int pm[ARR][2]; //possiblemoves
 	int i = 0;
 	int br = b.bar[(p->id == 1 ? 0 : 1)];
-	//int dublet = checkDbl(rollresult);
 
-
-
-	if (p->id == 1) { //jesli jestesmy graczem 1
-		for (int k = 0;k < 2;k++) {
-			int moves = 0;
-			for (int h = 5;h >= 0;h--) { //pozycje od 6 do 1 (dom gracza 1)
-				if (b.tab[h] > 0) { //jezeli jest pionek
-					if (rollresult[k] != 0) {
-						if (1 + h - rollresult[k] == 0) { //mozliwe wejscie
-							possiblemoves[i][0] = h + 1;
-							possiblemoves[i][1] = 0;
-							i++;
-						}
-						/*else {
-							int j = (k ? 0 : 1);
-							if (h - rollresult[k] - rollresult[j] < 0) {
-								possiblemoves[i][0] = h + 1;
-								possiblemoves[i][1] = 0;
-								i++;
-							}
-						}*/
-					}
-				}
-			}
-			if (moves == 0)
-			{
-				for (int h = 5;h >= 0 && !moves;h--) { //pozycje od 6 do 1 (dom gracza 1)
-					if (b.tab[h] > 0) { //jezeli jest pionek
-						if (rollresult[k] != 0) {
-							if (h - rollresult[k] < 0) { //mozliwe wejscie
-								possiblemoves[i][0] = h + 1;
-								possiblemoves[i][1] = 0;
-								i++;
-								moves++;
-							}
-						}
+	for (int k = 0;k < 2;k++) { //dla obu kostek
+		int moves = 0;
+		for (int h = HOMELEN - 1;h >= 0;h--) { //pozycje od 6 do 1 (dom gracza 1)
+			if (b.tab[h] > 0) { //jezeli jest pionek
+				if (rr[k] != 0) {
+					if (1 + h - rr[k] == 0) { //mozliwe wejscie
+						pm[i][0] = h + 1;
+						pm[i][1] = 0;
+						i++;
 					}
 				}
 			}
 		}
-
-	}
-	else //jesli jestesmy graczem 2
-	{
-		for (int k = 0;k < 2;k++) {
-			int moves = 0;
-			for (int h = (BSIZE - HOMELEN);h < BSIZE;h++) { //pozycje od 18 do 24 (dom gracza 2)
-				if (b.tab[h] < 0) { //jezeli jest pionek
-					if (rollresult[k] != 0) {
-						if (h + rollresult[k] == BSIZE) { //mozliwe wejscie
-							possiblemoves[i][0] = h + 1;
-							possiblemoves[i][1] = 0;
+		if (moves == 0)
+		{
+			for (int h = HOMELEN - 1;h >= 0 && !moves;h--) { //pozycje od 6 do 1 (dom gracza 1)
+				if (b.tab[h] > 0) { //jezeli jest pionek
+					if (rr[k] != 0) {
+						if (h - rr[k] < 0) { //mozliwe wejscie
+							pm[i][0] = h + 1;
+							pm[i][1] = 0;
 							i++;
 							moves++;
 						}
-						/*else {
-							int j = (k ? 0 : 1);
-							if (h + rollresult[k] + rollresult[j] > 23) {
-								possiblemoves[i][0] = h + 1;
-								possiblemoves[i][1] = 0;
-								i++;
-							}
-						}*/
 					}
 				}
-			}
-			if (moves == 0)
-			{
-				for (int h = (BSIZE - HOMELEN);h < BSIZE && !moves;h++) { //pozycje od 18 do 24 (dom gracza 2)
-					if (b.tab[h] < 0) { //jezeli jest pionek
-						if (rollresult[k] != 0) {
-							if (h + rollresult[k] > BSIZE - 1) { //mozliwe wejscie
-								possiblemoves[i][0] = h + 1;
-								possiblemoves[i][1] = 0;
-								i++;
-								moves++;
-
-							}
-						}
-					}
-				}
-
 			}
 		}
 	}
 
-
-
 	int a = p->possiblemoves;
-	//if ((i + a) > ARR) { cout << "za duzo ruchow" << endl; }
-
-	//cout << "i: " << i << endl;
 
 
 	for (int l = 0; l < i;l++)
 	{
-		p->possiblemovesarr[l + a][0] = possiblemoves[l][0];
-		p->possiblemovesarr[l + a][1] = possiblemoves[l][1];
-		//cout << possiblemoves[l][0] << " " << possiblemoves[l][1] << endl;
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
 
 	}
-	//cout << i << endl;
 	p->possiblemoves += i;
+}
+
+void getLegalOutsides2(int rr[2], player* p, board b)
+{
+	//rr = rollresult
+	int pm[ARR][2]; //possiblemoves
+	int i = 0;
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+
+	for (int k = 0;k < 2;k++) {//dla obu kostek
+		int moves = 0;
+		for (int h = (BSIZE - HOMELEN);h < BSIZE;h++) { //pozycje od 18 do 24 (dom gracza 2)
+			if (b.tab[h] < 0) { //jezeli jest pionek
+				if (rr[k] != 0) {
+					if (h + rr[k] == BSIZE) { //mozliwe wejscie
+						pm[i][0] = h + 1;
+						pm[i][1] = 0;
+						i++;
+						moves++;
+					}
+				}
+			}
+		}
+		if (moves == 0)
+		{
+			for (int h = (BSIZE - HOMELEN);h < BSIZE && !moves;h++) { //pozycje od 18 do 24 (dom gracza 2)
+				if (b.tab[h] < 0) { //jezeli jest pionek
+					if (rr[k] != 0) {
+						if (h + rr[k] > BSIZE - 1) { //mozliwe wejscie
+							pm[i][0] = h + 1;
+							pm[i][1] = 0;
+							i++;
+							moves++;
+
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	int a = p->possiblemoves;
+
+
+	for (int l = 0; l < i;l++)
+	{
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
+
+	}
+	p->possiblemoves += i;
+}
+
+
+void getLegalOutsides(int rollresult[2], player* p, board b)
+{
+
+
+	if (p->id == 1) { //jesli jestesmy graczem 1
+
+		getLegalOutsides1(rollresult, p, b);
+	}
+	else //jesli jestesmy graczem 2
+	{
+		getLegalOutsides2(rollresult, p, b);
+	}
+
+}
+
+
+void getLegalDoubles1a(int rr, player* p, board b)
+{
+	int pm[ARR][2]; //possiblemoves
+	int i = 0, m = 0;
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+	int mm[ARR][2]; //mandatorymoves
+	int mvs = p->movecount;
+	//int mvs = 4;
+
+	if (rr == 0)
+	{
+		rr = p->roll[0];
+	}
+
+
+	for (int h = BSIZE - 1;h >= 0;h--)
+	{
+		if (b.tab[h] > 0)
+		{
+			for (int k = 1;k <= mvs;k++) {
+				if (h - rr * k >= 0) {
+					if (b.tab[h - rr * k] >= -1)
+					{
+						pm[i][0] = h + 1;
+						pm[i][1] = h + 1 - rr * k;
+						i++;
+					}
+					else { k = STOP;break; }
+				}
+
+			}
+		}
+	}
+
+	int a = p->possiblemoves;
+
+	for (int l = 0; l < i;l++)
+	{
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
+	}
+	p->possiblemoves += i;
+
+}
+
+void getLegalDoubles2a(int rr, player* p, board b)
+{
+	int pm[ARR][2]; //possiblemoves
+	int i = 0, m = 0;
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+	int mm[ARR][2]; //mandatorymoves
+	int mvs = p->movecount;
+	//int mvs = 4;
+
+	if (rr == 0)
+	{
+		rr = p->roll[0];
+	}
+
+	if (rr != 0) {
+		for (int h = 0;h < BSIZE;h++)
+		{
+			if (b.tab[h] < 0)
+			{
+
+				for (int k = 1;k <= mvs;k++) {
+					if (h + rr * k <= BSIZE - 1) {
+						if (b.tab[h + rr * k] <= 1)
+						{
+							pm[i][0] = h + 1;
+							pm[i][1] = h + 1 + rr * k;
+							i++;
+						}
+						else { k = STOP;break; }
+					}
+				}
+			}
+		}
+	}
+
+
+	int a = p->possiblemoves;
+
+	for (int l = 0; l < i;l++)
+	{
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
+	}
+	p->possiblemoves += i;
+
+}
+
+int getLegalDoubles1(int rr, player* p, board b)
+{
+	int pm[ARR][2]; //possiblemoves
+	int i = 0, m = 0;
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+	int mm[ARR][2]; //mandatorymoves
+	int mvs = p->movecount;
+	//int mvs = 4;
+
+	if (rr == 0)
+	{
+		rr = p->roll[0];
+	}
+
+	if (br == 0) { //jesli nie jestesmy na barze
+
+		getLegalDoubles1a(rr, p, b);
+		return 0;
+	}
+	else if (br == 1)//jesli jestesmy na barze
+	{
+		//if (rr != 0) {
+		for (int k = 1;k <= mvs;k++) {
+			if (b.tab[BSIZE - rr * k] >= -1)
+			{
+				pm[i][0] = BAR;
+				pm[i][1] = BAR - rr * k;
+				i++;
+			}
+			else { k = STOP;break; }
+		}
+		//}
+	}
+	else if (br >= 2)
+	{
+		//if (rr != 0) {
+		if (b.tab[BSIZE - rr] >= -1)
+		{
+			pm[i][0] = BAR;
+			pm[i][1] = BAR - rr;
+			i++;
+		}
+		//}
+	}
+
+
+	int a = p->possiblemoves;
+
+	for (int l = 0; l < i;l++)
+	{
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
+	}
+	p->possiblemoves += i;
+	return 0;
+}
+
+int getLegalDoubles2(int rr, player* p, board b)
+{
+	int pm[ARR][2]; //possiblemoves
+	int i = 0, m = 0;
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+	int mm[ARR][2]; //mandatorymoves
+	int mvs = p->movecount;
+	//int mvs = 4;
+
+	if (rr == 0)
+	{
+		rr = p->roll[0];
+	}
+
+	if (br == 0) { //jesli nie jestesmy na barze
+		getLegalDoubles2a(rr, p, b);
+		return 0;
+	}
+	else if (br == 1)//jesli jestesmy na barze
+	{
+		if (rr != 0) {
+			for (int k = 1;k <= mvs;k++) {
+				if (b.tab[rr * k - 1] <= 1)
+				{
+					pm[i][0] = BAR;
+					pm[i][1] = rr * k;
+					i++;
+				}
+				else { k = STOP;break; }
+			}
+		}
+	}
+	else if (br >= 2)
+	{
+		if (rr != 0) {
+			if (b.tab[rr - 1] <= 1)
+			{
+				pm[i][0] = BAR;
+				pm[i][1] = rr;
+				i++;
+			}
+		}
+	}
+
+
+	int a = p->possiblemoves;
+
+	for (int l = 0; l < i;l++)
+	{
+		p->pmarr[l + a][0] = pm[l][0];
+		p->pmarr[l + a][1] = pm[l][1];
+	}
+	p->possiblemoves += i;
+	return 0;
 }
 
 
 void getLegalDoubles(int rollresult, player* p, board b)
 {
-	int possiblemoves[ARR][2];
-	int i = 0, m = 0;
-	int br = b.bar[(p->id == 1 ? 0 : 1)];
-	int mandatorymoves[ARR][2];
-	int mvs = p->movecount;
-	//int mvs = 4;
-	if (rollresult == 0)
-	{
-		rollresult = p->roll[0];
-	}
+
 
 	if (p->id == 1) { //jesli jestesmy graczem 1
-		if (br == 0) { //jesli nie jestesmy na barze
-			if (rollresult != 0) {
-				for (int h = BSIZE - 1;h >= 0;h--)
-				{
-					if (b.tab[h] > 0)
-					{
-						for (int k = 1;k <= mvs;k++) {
-							if (h - rollresult * k >= 0) {
-								if (b.tab[h - rollresult * k] >= -1)
-								{
-									if (b.tab[h - rollresult * k] == -1)
-									{
-										mandatorymoves[i][0] = h + 1;
-										mandatorymoves[i][1] = h + 1 - rollresult * k;
-										m++;
-									}
-
-									possiblemoves[i][0] = h + 1;
-									possiblemoves[i][1] = h + 1 - rollresult * k;
-									i++;
-								}
-								else { k = STOP;break; }
-							}
-
-						}
-					}
-				}
-			}
-		}
-		else if (br == 1)//jesli jestesmy na barze
-		{
-			if (rollresult != 0) {
-				for (int k = 1;k <= mvs;k++) {
-					if (b.tab[BSIZE - rollresult * k] >= -1)
-					{
-						possiblemoves[i][0] = BAR;
-						possiblemoves[i][1] = BAR - rollresult * k;
-						i++;
-					}
-					else { k = STOP;break; }
-				}
-			}
-		}
-		else if (br >= 2)
-		{
-			if (rollresult != 0) {
-				if (b.tab[BSIZE - rollresult] >= -1)
-				{
-					possiblemoves[i][0] = BAR;
-					possiblemoves[i][1] = BAR - rollresult;
-					i++;
-				}
-			}
-		}
+		getLegalDoubles1(rollresult, p, b);
 	}
 	else //jesli jestesmy graczem 2
 	{
-		if (br == 0) { //jesli nie jestesmy na barze
-			if (rollresult != 0) {
-				for (int h = 0;h < BSIZE;h++)
-				{
-					if (b.tab[h] < 0)
-					{
-
-						for (int k = 1;k <= mvs;k++) {
-							if (h + rollresult * k <= BSIZE - 1) {
-								if (b.tab[h + rollresult * k] <= 1)
-								{
-									possiblemoves[i][0] = h + 1;
-									possiblemoves[i][1] = h + 1 + rollresult * k;
-									i++;
-								}
-								else { k = STOP;break; }
-							}
-
-						}
-					}
-				}
-			}
-		}
-		else if (br == 1)//jesli jestesmy na barze
-		{
-			if (rollresult != 0) {
-				for (int k = 1;k <= mvs;k++) {
-					if (b.tab[rollresult * k - 1] <= 1)
-					{
-						possiblemoves[i][0] = BAR;
-						possiblemoves[i][1] = rollresult * k;
-						i++;
-					}
-					else { k = STOP;break; }
-				}
-			}
-		}
-		else if (br >= 2)
-		{
-			if (rollresult != 0) {
-				if (b.tab[rollresult - 1] <= 1)
-				{
-					possiblemoves[i][0] = BAR;
-					possiblemoves[i][1] = rollresult;
-					i++;
-				}
-			}
-		}
+		getLegalDoubles2(rollresult, p, b);
 	}
 
+}
 
 
-	int a = p->possiblemoves;
+void insrt(int pm[ARR][2], int i, int mm[ARR][2], int m, int rr[2], player* p, board b)
+{
+	//insrt(pm, i, mm, m, rr, p, b);
+
+	refactorMandatoryMoves(mm, m, p);
+
 
 	for (int l = 0; l < i;l++)
 	{
-		p->possiblemovesarr[l + a][0] = possiblemoves[l][0];
-		p->possiblemovesarr[l + a][1] = possiblemoves[l][1];
-		//cout << possiblemoves[l][0] << " " << possiblemoves[l][1] << endl;
-
+		p->pmarr[l][0] = pm[l][0];
+		p->pmarr[l][1] = pm[l][1];
 	}
-	//cout << i << endl;
-	p->possiblemoves += i;
+
+
+	p->possiblemoves = i;
+
+	if (checkDbl(rr)) { getLegalDoubles(rr[0], p, b); }
+
+	if (checkOutside(p, &b)) { getLegalOutsides(rr, p, b); }
+
 
 }
 
@@ -765,21 +900,254 @@ void refactorMandatoryMoves(int mmarr[ARR][2], int m, player* p)
 }
 
 
-void getLegalMoves(int rollresult[2], player* p, board b)
+void getLegalMoves1(int rr[2], player* p, board b)
+{
+	int i = 0, m = 0;
+
+	int pm[ARR][2];
+	int mm[ARR][2];
+
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+
+	for (int k = 0;k < 2;k++) {
+		if (rr[k] != 0) {
+			if (b.tab[BSIZE - rr[k]] >= -1)
+			{
+				if (b.tab[BSIZE - rr[k]] == -1) //mandatory capture
+				{
+					mm[m][0] = BAR;
+					mm[m][1] = BAR - rr[k];
+					m++;
+				}
+
+				pm[i][0] = BAR;
+				pm[i][1] = BAR - rr[k];
+				i++;
+
+
+				if (br == 1) {
+					int j = (k ? 0 : 1);
+					if (b.tab[BSIZE - rr[k] - rr[j]] >= -1)
+					{
+						if (rr[k] != 0 && rr[j] != 0) {
+							if (b.tab[BSIZE - rr[k]] == -1 || b.tab[BSIZE - rr[k] - rr[j]] == -1) //mandatory capture
+							{
+								mm[m][0] = BAR;
+								mm[m][1] = BAR - rr[k] - rr[j];
+								m++;
+							}
+
+							pm[i][0] = BAR;
+							pm[i][1] = BAR - rr[k] - rr[j];
+							i++;
+						}
+
+						//sprawdza czy suma jest legalna tylko gdy 1 pionek na barze
+					}
+				}
+			}
+		}
+	}
+
+	insrt(pm, i, mm, m, rr, p, b);
+
+
+}
+
+void getLegalMoves2(int rr[2], player* p, board b)
+{
+	int i = 0, m = 0;
+
+	int pm[ARR][2];
+	int mm[ARR][2];
+
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+
+	for (int k = 0;k < 2;k++) {
+		if (rr[k] != 0) {
+
+			if (b.tab[rr[k] - 1] <= 1)
+			{
+				if (b.tab[rr[k] - 1] == 1) //mandatory capture
+				{
+					mm[m][0] = BAR;
+					mm[m][1] = rr[k];
+					m++;
+				}
+
+				pm[i][0] = BAR;
+				pm[i][1] = rr[k];
+				i++;
+
+
+				if (br == 1) {
+					int j = (k ? 0 : 1);
+					if (b.tab[rr[k] + rr[j] - 1] <= 1)
+					{
+						if (rr[k] != 0 && rr[j] != 0) {
+
+							if (b.tab[rr[k] - 1] == 1 || b.tab[rr[k] + rr[j] - 1] == 1) //mandatory capture
+							{
+								mm[m][0] = BAR;
+								mm[m][1] = rr[k] + rr[j];
+								m++;
+							}
+
+							pm[i][0] = BAR;
+							pm[i][1] = rr[k] + rr[j];
+							i++;
+						}
+
+						//sprawdza czy suma jest legalna tylko gdy 1 pionek na barze
+					}
+				}
+			}
+		}
+	}
+
+	insrt(pm, i, mm, m, rr, p, b);
+
+}
+
+void getLegalMoves3(int rr[2], player* p, board b)
+{
+	int i = 0, m = 0;
+
+	int pm[ARR][2];
+	int mm[ARR][2];
+
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+
+	for (int h = BSIZE - 1;h >= 0;h--)
+	{
+		if (b.tab[h] > 0) { // jezeli jest pionek
+			for (int k = 0;k < 2;k++) { // dla obu rollresult
+				if (rr[k] != 0) {
+					if (h - rr[k] >= 0) {
+						if (b.tab[h - rr[k]] >= -1)
+						{
+							if (b.tab[h - rr[k]] == -1) //mandatory capture
+							{
+								mm[m][0] = h + 1;
+								mm[m][1] = h + 1 - rr[k];
+								m++;
+							}
+
+
+							pm[i][0] = h + 1;
+							pm[i][1] = h + 1 - rr[k];
+							i++;
+
+							if (br <= 1) {
+								int j = (k ? 0 : 1);
+								if (h - rr[k] - rr[j] >= 0) {
+									if (b.tab[h - rr[k] - rr[j]] >= -1)
+									{
+										if (b.tab[h - rr[k]] == -1 || b.tab[h - rr[k] - rr[j]] == -1)
+										{
+											mm[m][0] = h + 1;
+											mm[m][1] = h + 1 - rr[k] - rr[j];
+											m++;
+										}
+
+										pm[i][0] = h + 1;
+										pm[i][1] = h + 1 - rr[k] - rr[j];
+										i++;
+
+
+										//sprawdza czy suma jest legalna
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	insrt(pm, i, mm, m, rr, p, b);
+
+}
+
+void getLegalMoves4(int r[2], player* p, board b)
+{ 
+	//r = rollresult
+	int i = 0, m = 0;
+
+	int pm[ARR][2];
+	int mm[ARR][2];
+
+	int br = b.bar[(p->id == 1 ? 0 : 1)];
+
+	for (int h = 0;h < BSIZE;h++)
+	{
+		if (b.tab[h] < 0) { // jezeli jest pionek
+			for (int k = 0;k < 2;k++) { // dla obu rollresult
+				if (r[k] != 0) {
+					if (h + r[k] <= BSIZE - 1) {
+						if (b.tab[h + r[k]] <= 1)
+						{
+							if (b.tab[h + r[k]] == 1) //mandatory capture
+							{
+								mm[m][0] = h + 1;
+								mm[m][1] = h + 1 + r[k];
+								m++;
+							}
+
+							pm[i][0] = h + 1;
+							pm[i][1] = h + 1 + r[k];
+							i++;
+
+							if (br <= 1) {
+								int j = (k ? 0 : 1);
+								if (h + r[k] + r[j] <= BSIZE - 1) {
+									if (b.tab[h + r[k] + r[j]] <= 1)
+									{
+										if (b.tab[h + r[k]] == 1 || b.tab[h + r[k] + r[j]] == 1)
+										{
+											mm[m][0] = h + 1;
+											mm[m][1] = h + 1 + r[k] + r[j];
+											m++;
+										}
+
+										//if (r[k] != 0) {
+											pm[i][0] = h + 1;
+											pm[i][1] = h + 1 + r[k] + r[j];
+											i++;
+										//}
+
+										//sprawdza czy suma jest legalna
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	insrt(pm, i, mm, m, r, p, b);
+
+}
+
+
+int getLegalMoves(int rr[2], player* p, board b)
 {
 	int br, i = 0, m = 0;
 	short x = p->id;
-	int possiblemoves[ARR][2];
-	int mandatorymoves[ARR][2];
+	int pm[ARR][2];
+	int mm[ARR][2];
 
 	clearPossibleMoves(p);
 
 
-	if (rollresult[0] > rollresult[1])//defaultowo posortuje rollresult
+	if (rr[0] > rr[1])//defaultowo posortuje rollresult
 	{
-		br = rollresult[0];
-		rollresult[0] = rollresult[1];
-		rollresult[1] = br;
+		br = rr[0];
+		rr[0] = rr[1];
+		rr[1] = br;
 	}
 
 	br = b.bar[(p->id == 1 ? 0 : 1)];
@@ -790,91 +1158,18 @@ void getLegalMoves(int rollresult[2], player* p, board b)
 		{
 		case 1: //-5,0,0,0,0,2 pozytywne
 
-			for (int k = 0;k < 2;k++) {
-				if (rollresult[k] != 0) {
-					if (b.tab[BSIZE - rollresult[k]] >= -1)
-					{
-						if (b.tab[BSIZE - rollresult[k]] == -1) //mandatory capture
-						{
-							mandatorymoves[m][0] = BAR;
-							mandatorymoves[m][1] = BAR - rollresult[k];
-							m++;
-						}
-
-						possiblemoves[i][0] = BAR;
-						possiblemoves[i][1] = BAR - rollresult[k];
-						i++;
-
-
-						if (br == 1) {
-							int j = (k ? 0 : 1);
-							if (b.tab[BSIZE - rollresult[k] - rollresult[j]] >= -1)
-							{
-								if (rollresult[k] != 0 && rollresult[j] != 0) {
-									if (b.tab[BSIZE - rollresult[k]] == -1 || b.tab[BSIZE - rollresult[k] - rollresult[j]] == -1) //mandatory capture
-									{
-										mandatorymoves[m][0] = BAR;
-										mandatorymoves[m][1] = BAR - rollresult[k] - rollresult[j];
-										m++;
-									}
-
-									possiblemoves[i][0] = BAR;
-									possiblemoves[i][1] = BAR - rollresult[k] - rollresult[j];
-									i++;
-								}
-
-								//sprawdza czy suma jest legalna tylko gdy 1 pionek na barze
-							}
-						}
-					}
-				}
-			}
+			
+			getLegalMoves1(rr, p, b);
+			return 0;
 
 			break;
 
 		case 2: //-2,0,0,0,0,5
 
-			for (int k = 0;k < 2;k++) {
-				if (rollresult[k] != 0) {
+			getLegalMoves2(rr, p, b);
+			return 0;
 
-					if (b.tab[rollresult[k] - 1] <= 1)
-					{
-						if (b.tab[rollresult[k] - 1] == 1) //mandatory capture
-						{
-							mandatorymoves[m][0] = BAR;
-							mandatorymoves[m][1] = rollresult[k];
-							m++;
-						}
-
-						possiblemoves[i][0] = BAR;
-						possiblemoves[i][1] = rollresult[k];
-						i++;
-
-
-						if (br == 1) {
-							int j = (k ? 0 : 1);
-							if (b.tab[rollresult[k] + rollresult[j] - 1] <= 1)
-							{
-								if (rollresult[k] != 0 && rollresult[j] != 0) {
-
-									if (b.tab[rollresult[k] - 1] == 1 || b.tab[rollresult[k] + rollresult[j] - 1] == 1) //mandatory capture
-									{
-										mandatorymoves[m][0] = BAR;
-										mandatorymoves[m][1] = rollresult[k] + rollresult[j];
-										m++;
-									}
-
-									possiblemoves[i][0] = BAR;
-									possiblemoves[i][1] = rollresult[k] + rollresult[j];
-									i++;
-								}
-
-								//sprawdza czy suma jest legalna tylko gdy 1 pionek na barze
-							}
-						}
-					}
-				}
-			}
+			
 
 			break;
 		}
@@ -886,126 +1181,27 @@ void getLegalMoves(int rollresult[2], player* p, board b)
 		{
 		case 1: //test dla g1 do tylu
 
-			for (int h = BSIZE - 1;h >= 0;h--)
-			{
-				if (b.tab[h] > 0) { // jezeli jest pionek
-					for (int k = 0;k < 2;k++) { // dla obu rollresult
-						if (rollresult[k] != 0) {
-							if (h - rollresult[k] >= 0) {
-								if (b.tab[h - rollresult[k]] >= -1)
-								{
-									if (b.tab[h - rollresult[k]] == -1) //mandatory capture
-									{
-										mandatorymoves[m][0] = h + 1;
-										mandatorymoves[m][1] = h + 1 - rollresult[k];
-										m++;
-									}
+			getLegalMoves3(rr, p, b);
+			return 0;
 
-
-									possiblemoves[i][0] = h + 1;
-									possiblemoves[i][1] = h + 1 - rollresult[k];
-									i++;
-
-									if (br <= 1) {
-										int j = (k ? 0 : 1);
-										if (h - rollresult[k] - rollresult[j] >= 0) {
-											if (b.tab[h - rollresult[k] - rollresult[j]] >= -1)
-											{
-												if (b.tab[h - rollresult[k]] == -1 || b.tab[h - rollresult[k] - rollresult[j]] == -1)
-												{
-													mandatorymoves[m][0] = h + 1;
-													mandatorymoves[m][1] = h + 1 - rollresult[k] - rollresult[j];
-													m++;
-												}
-
-												possiblemoves[i][0] = h + 1;
-												possiblemoves[i][1] = h + 1 - rollresult[k] - rollresult[j];
-												i++;
-
-
-												//sprawdza czy suma jest legalna
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			
 			break;
 		case 2:
-			for (int h = 0;h < BSIZE;h++)
-			{
-				if (b.tab[h] < 0) { // jezeli jest pionek
-					for (int k = 0;k < 2;k++) { // dla obu rollresult
-						if (rollresult[k] != 0) {
-							if (h + rollresult[k] <= BSIZE - 1) {
-								if (b.tab[h + rollresult[k]] <= 1)
-								{
-									if (b.tab[h + rollresult[k]] == 1) //mandatory capture
-									{
-										mandatorymoves[m][0] = h + 1;
-										mandatorymoves[m][1] = h + 1 + rollresult[k];
-										m++;
-									}
 
-									possiblemoves[i][0] = h + 1;
-									possiblemoves[i][1] = h + 1 + rollresult[k];
-									i++;
+			getLegalMoves4(rr, p, b);
+			return 0;
 
-									if (br <= 1) {
-										int j = (k ? 0 : 1);
-										if (h + rollresult[k] + rollresult[j] <= BSIZE - 1) {
-											if (b.tab[h + rollresult[k] + rollresult[j]] <= 1)
-											{
-												if (b.tab[h + rollresult[k]] == 1 || b.tab[h + rollresult[k] + rollresult[j]] == 1)
-												{
-													mandatorymoves[m][0] = h + 1;
-													mandatorymoves[m][1] = h + 1 + rollresult[k] + rollresult[j];
-													m++;
-												}
-
-												if (rollresult[k] != 0) {
-													possiblemoves[i][0] = h + 1;
-													possiblemoves[i][1] = h + 1 + rollresult[k] + rollresult[j];
-													i++;
-												}
-
-												//sprawdza czy suma jest legalna
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			
 			break;
 
 		}
 	}
 
-	refactorMandatoryMoves(mandatorymoves, m, p);
+	insrt(pm, i, mm, m, rr, p, b);
+	return 0;
 
-
-	for (int l = 0; l < i;l++)
-	{
-		p->possiblemovesarr[l][0] = possiblemoves[l][0];
-		p->possiblemovesarr[l][1] = possiblemoves[l][1];
-	}
-
-
-	p->possiblemoves = i;
-
-	//if (p->roll[0]==p->roll[1] || p->movecount>2) { getLegalDoubles(rollresult[0], p, b); }
-	if (checkDbl(rollresult)) { getLegalDoubles(rollresult[0], p, b); }
-
-	if (checkOutside(p, &b)) { getLegalOutsides(rollresult, p, b); }
-
-	//return possiblemoves;
 }
+
 
 
 void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
@@ -1021,6 +1217,7 @@ void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 		{
 			if (b->round != 1)
 			{
+				cloneHistory(*b); // klonuje historie po wygraniu gry
 				char nick[ARR];
 				//system("cls");
 				printBoard(*b);
@@ -1373,7 +1570,7 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 		//{
 		//	return 1;
 		//}
-		p->movecount-=2;
+		p->movecount -= 2;
 		checkWin(rollresult, p, b, playerinput);
 		return 2;
 	}
@@ -1425,6 +1622,8 @@ void loadGame(player* p1, player* p2, board* b, int mode)
 	else
 	{
 		fopen_s(&file, "save.txt", "r");
+		b->customsave = 1;
+
 	}
 
 	//fopen_s(&file, "save.txt", "r");
@@ -1487,26 +1686,77 @@ void saveHistory(int playerinput[2], player p, board* b, int rollresult[2])
 }
 
 
-void cloneHistory()
+void cloneHistory(board b)
+{
+	if (b.customsave == 0)
+	{
+		FILE* file;
+		FILE* file2;
+
+		fopen_s(&file, "history.txt", "r");
+		fopen_s(&file2, "replay.txt", "w");
+
+		int num = 0;
+		while (!feof(file)) {
+			int a;
+			fscanf_s(file, "%d ", &a);
+			//cout << a << endl;
+			fprintf_s(file2, "%d ", a);
+
+			num++;
+		}
+		fclose(file);
+		fclose(file2);
+
+	}
+	else
+	{
+		cout << "nie mozna zapisac historii wczytaniej gry jako powtorki" << endl;
+	}
+}
+
+
+int replayModeMenu(player* p1, player* p2, board* b, int n)
 {
 
-	FILE* file;
-	FILE* file2;
+	printBoard(*b);
 
-	fopen_s(&file, "history.txt", "r");
-	fopen_s(&file2, "replay.txt", "w");
+
+	cout << "Dostepne komendy :   (NEXT)   (PREV)   (START)   (END)   (QUIT)" << endl;
+
+	char pi[ARR];
+	while (1)
+	{
+		//cout<<"gra here"<<endl;
+		cin >> pi;
+
+		if (!strcmp(pi, "quit") || !strcmp(pi, "QUIT")) { exit(1); return -1; }
+		else if (!strcmp(pi, "next") || !strcmp(pi, "NEXT")) { replayMode(p1, p2, b, n + 5);return 0; }
+		else if (!strcmp(pi, "prev") || !strcmp(pi, "PREV")) { replayMode(p1, p2, b, n - 5);return 0; }
+		else if (!strcmp(pi, "start") || !strcmp(pi, "START")) { replayMode(p1, p2, b, 0);return 0; }
+		else if (!strcmp(pi, "end") || !strcmp(pi, "END")) { replayMode(p1, p2, b, -1);return 0; }
+
+	}
+
+	return 0;
+}
+
+
+int replayLen()
+{
+	FILE* file;
+
+	fopen_s(&file, "replay.txt", "r");
 
 	int num = 0;
 	while (!feof(file)) {
 		int a;
 		fscanf_s(file, "%d ", &a);
-		//cout << a << endl;
-		fprintf_s(file2, "%d ", a);
-
 		num++;
 	}
 	fclose(file);
-	fclose(file2);
+
+	return num;
 }
 
 
@@ -1517,25 +1767,23 @@ int replayMode(player* p1, player* p2, board* b, int n)
 	FILE* file;
 
 
-	fopen_s(&file, "replay.txt", "r");
+	//fopen_s(&file, "replay.txt", "r");
 
-	/*for (int i = 0;i < 3*n;i++)
-	{*/
 	int num = 0;
 	int i = 0;
-	int len = 0;
+	int len = replayLen();
 
 	int newrr[2];
 	int newpi[2];
 	player* newp1 = p1;
 	player* newp2 = p2;
 
-	while (!feof(file)) {
+	/*while (!feof(file)) {
 		int a;
 		fscanf_s(file, "%d ", &a);
 		len++;
 	}
-	fclose(file);
+	fclose(file);*/
 
 	fopen_s(&file, "replay.txt", "r");
 
@@ -1544,14 +1792,10 @@ int replayMode(player* p1, player* p2, board* b, int n)
 		n = len;
 	}
 
-	//cout << n << endl;
 
-	//cout << "historia: ";
-	while (!feof(file) && i < n) { // cala historia
-		int a;
+	while (!feof(file) && i < n) {
+		int a; // odczyt z pliku
 		fscanf_s(file, "%d ", &a);
-		//cout << i << "-";
-		//cout << a << " ";
 
 		if (i % 5 == 0)
 		{
@@ -1573,7 +1817,7 @@ int replayMode(player* p1, player* p2, board* b, int n)
 		else if (i % 5 == 4)
 		{
 			newrr[1] = a;
-			//cout << endl;
+			newp1->movecount = 4;
 
 			move(newrr, newp1, b, newpi, newp2);
 			num++;
@@ -1583,28 +1827,10 @@ int replayMode(player* p1, player* p2, board* b, int n)
 		i++;
 		//}
 	}
-	//cout << endl << endl;
-	//cout << num << endl;
-	printBoard(*b);
 	fclose(file);
 
-	cout << "Dostepne komendy :   (NEXT)   (PREV)   (START)   (END)   (QUIT)" << endl;
+	replayModeMenu(p1, p2, b, n);
 
-	char pi[ARR];
-	while (1)
-	{
-		//cout<<"gra here"<<endl;
-		cin >> pi;
-
-		if (!strcmp(pi, "quit") || !strcmp(pi, "QUIT")) { exit(1); return -1; }
-		else if (!strcmp(pi, "next") || !strcmp(pi, "NEXT")) { replayMode(p1, p2, b, n + 5);return 0; }
-		else if (!strcmp(pi, "prev") || !strcmp(pi, "PREV")) { replayMode(p1, p2, b, n - 5);return 0; }
-		else if (!strcmp(pi, "start") || !strcmp(pi, "START")) { replayMode(p1, p2, b, 0);return 0; }
-		else if (!strcmp(pi, "end") || !strcmp(pi, "END")) { replayMode(p1, p2, b, -1);return 0; }
-
-	}
-
-	//cout << "WYJSCIE Z FUNKCJI"<<endl;
 	return 0;
 }
 
@@ -1619,16 +1845,12 @@ void printHints(int rollresult[2], player* p, board* b)
 	if (b->bar[p->id - 1] > 0) { c = 0; }
 	int ruchy[ARR][2];
 
-	//if (a == 0 || p->movecount == 0) {
-	//	//cout << "pusta tablica" << endl;
-	//	//return 0;
-	//}
 	cout << "mozliwe ruchy: " << p->movecount << endl;
 
 	for (int i = 0; i < a; i++)
 	{
-		ruchy[i][0] = p->possiblemovesarr[i][0];
-		ruchy[i][1] = p->possiblemovesarr[i][1];
+		ruchy[i][0] = p->pmarr[i][0];
+		ruchy[i][1] = p->pmarr[i][1];
 
 		cout << (ruchy[i][0] > 9 ? "" : " ") << ruchy[i][0] << " " << (ruchy[i][1] > 9 ? "" : " ") << ruchy[i][1] << ";  ";
 		if ((i + 1) % 10 == 0)
@@ -1670,8 +1892,8 @@ int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int
 
 
 		if (p->possiblemoves == 0 || p->movecount <= 0) {
-		//if (p->possiblemoves == 0 ) {
-			//cout << "pusta tablica" << endl;
+			//if (p->possiblemoves == 0 ) {
+				//cout << "pusta tablica" << endl;
 			printBoard(*b);
 			return 0;
 		}
@@ -1792,6 +2014,7 @@ int whoStarts(player* p1, board* b, player* p2)
 
 		cout << "\n\tGracz 1 wyrzucil [" << x << "] \tGracz 2 wyrzucil [" << y << "]" << endl << endl;
 	}
+
 
 
 	if (x > y)
