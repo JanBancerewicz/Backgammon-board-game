@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+
 void printLB()
 {
 	system("cls");
@@ -87,7 +89,7 @@ void rollInfo(player* p)
 }
 
 
-void clearPossibleMoves(player* p)
+void clrPM(player* p)
 {
 	for (int i = 0; i < ARR; i++)
 	{
@@ -156,6 +158,7 @@ int getWinnerScore(player* p, board* b)
 void printInfo(board b)
 {
 	//system("cls");
+	
 	cout << "BACKGAMMON.EXE \taplikacja konsolowa" << endl;
 	cout << "Dostepne komendy:   ( MOVE {z} {do} )   ( SAVE )   ( LOAD )   ( REPLAY )   ( QUIT )   ( LEADERBOARD )" << endl;
 	cout << " bar{" << b.bar[0] << " , " << b.bar[1] << " }";
@@ -902,6 +905,8 @@ void refactorMandatoryMoves(int mmarr[ARR][2], int m, player* p)
 
 void getLegalMoves1(int rr[2], player* p, board b)
 {
+	clrPM(p);
+
 	int i = 0, m = 0;
 
 	int pm[ARR][2];
@@ -956,6 +961,8 @@ void getLegalMoves1(int rr[2], player* p, board b)
 
 void getLegalMoves2(int rr[2], player* p, board b)
 {
+	clrPM(p);
+
 	int i = 0, m = 0;
 
 	int pm[ARR][2];
@@ -1011,6 +1018,8 @@ void getLegalMoves2(int rr[2], player* p, board b)
 
 void getLegalMoves3(int rr[2], player* p, board b)
 {
+	clrPM(p);
+
 	int i = 0, m = 0;
 
 	int pm[ARR][2];
@@ -1071,12 +1080,14 @@ void getLegalMoves3(int rr[2], player* p, board b)
 }
 
 void getLegalMoves4(int r[2], player* p, board b)
-{ 
+{
+	clrPM(p);
+
 	//r = rollresult
 	int i = 0, m = 0;
 
-	int pm[ARR][2];
-	int mm[ARR][2];
+	int u[ARR][2]; //possiblemoves
+	int n[ARR][2]; // mandatorymoves
 
 	int br = b.bar[(p->id == 1 ? 0 : 1)];
 
@@ -1090,13 +1101,13 @@ void getLegalMoves4(int r[2], player* p, board b)
 						{
 							if (b.tab[h + r[k]] == 1) //mandatory capture
 							{
-								mm[m][0] = h + 1;
-								mm[m][1] = h + 1 + r[k];
+								n[m][0] = h + 1;
+								n[m][1] = h + 1 + r[k];
 								m++;
 							}
 
-							pm[i][0] = h + 1;
-							pm[i][1] = h + 1 + r[k];
+							u[i][0] = h + 1;
+							u[i][1] = h + 1 + r[k];
 							i++;
 
 							if (br <= 1) {
@@ -1106,15 +1117,15 @@ void getLegalMoves4(int r[2], player* p, board b)
 									{
 										if (b.tab[h + r[k]] == 1 || b.tab[h + r[k] + r[j]] == 1)
 										{
-											mm[m][0] = h + 1;
-											mm[m][1] = h + 1 + r[k] + r[j];
+											n[m][0] = h + 1;
+											n[m][1] = h + 1 + r[k] + r[j];
 											m++;
 										}
 
 										//if (r[k] != 0) {
-											pm[i][0] = h + 1;
-											pm[i][1] = h + 1 + r[k] + r[j];
-											i++;
+										u[i][0] = h + 1;
+										u[i][1] = h + 1 + r[k] + r[j];
+										i++;
 										//}
 
 										//sprawdza czy suma jest legalna
@@ -1128,7 +1139,7 @@ void getLegalMoves4(int r[2], player* p, board b)
 		}
 	}
 
-	insrt(pm, i, mm, m, r, p, b);
+	insrt(u, i, n, m, r, p, b);
 
 }
 
@@ -1140,7 +1151,7 @@ int getLegalMoves(int rr[2], player* p, board b)
 	int pm[ARR][2];
 	int mm[ARR][2];
 
-	clearPossibleMoves(p);
+	clrPM(p);
 
 
 	if (rr[0] > rr[1])//defaultowo posortuje rollresult
@@ -1158,7 +1169,7 @@ int getLegalMoves(int rr[2], player* p, board b)
 		{
 		case 1: //-5,0,0,0,0,2 pozytywne
 
-			
+
 			getLegalMoves1(rr, p, b);
 			return 0;
 
@@ -1169,7 +1180,7 @@ int getLegalMoves(int rr[2], player* p, board b)
 			getLegalMoves2(rr, p, b);
 			return 0;
 
-			
+
 
 			break;
 		}
@@ -1184,14 +1195,14 @@ int getLegalMoves(int rr[2], player* p, board b)
 			getLegalMoves3(rr, p, b);
 			return 0;
 
-			
+
 			break;
 		case 2:
 
 			getLegalMoves4(rr, p, b);
 			return 0;
 
-			
+
 			break;
 
 		}
@@ -1201,8 +1212,6 @@ int getLegalMoves(int rr[2], player* p, board b)
 	return 0;
 
 }
-
-
 
 void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 {
@@ -1230,12 +1239,9 @@ void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 				cout << nick << endl;
 
 				saveLeaderboard(nick, score);
-				//cout<< "wygral gracz " << p->id <<"\n\n\n\n\n\n\n\n\n\n"<<endl;
 
 				//zapis do pliku
-
-				//return 100; //zwyciestwo // wywolaj int main() i zakoncz gre
-				main(); //todo todo todo GRATULACJE UZYTKOWNIKU WYGRALES IPHONE // todo todo todo naprawione w zasadzie xd
+				main(); //GRATULACJE WYGRALES
 
 
 			}
@@ -1246,7 +1252,7 @@ void checkWin(int rollresult[2], player* p, board* b, int playerinput[2])
 
 int move(int rollresult[2], player* p, board* b, int playerinput[2], player* enemy)
 {
-	clearPossibleMoves(p);
+	clrPM(p);
 	getLegalMoves(rollresult, p, *b);
 
 
@@ -1263,8 +1269,6 @@ int move(int rollresult[2], player* p, board* b, int playerinput[2], player* ene
 		{
 			//if (playerinput[0] == BAR) { diff = playerinput[1]; }
 			//if (playerinput[1] == 0) { diff = BAR - playerinput[0]; }
-
-			//todo possible bug z wchodzeniem na outside przy komendzie 18 0 i dublu (chyba nielegalne) jest git
 
 			if (diff == 3 * rollresult[0] && dublet) //dublety
 			{
@@ -1870,133 +1874,186 @@ void printHints(int rollresult[2], player* p, board* b)
 }
 
 
-int readinput(int rollresult[2], player* p, board* b, player* enemy, int a1, int a2)
+int valCheck(int v, int rr[2], player* p, board* b, player* e, int ri[2])
+{
+	char pr[]= "wykonano polowiczny ruch "; //propmt
+
+	printBoard(*b);
+
+	if (v != -1)
+	{
+		saveHistory(ri, *p, b, rr);
+	}
+
+	if (v == 0)
+	{
+		cout << pr << rr[1] << "\n"; //rekurencja :)
+		int r[2] = { 0,rr[1] };
+		readinput(r, p, b, e, 0, 0);
+	}
+	if (v == 1)
+	{
+		cout << pr << rr[0] << "\n"; //rekurencja :)
+		int r[2] = { 0,rr[0] };
+		readinput(r, p, b, e, 0, 0);
+	}
+	if (v == 2)
+	{
+		cout << "wykonano ruch\n";
+	}
+	if (v == 3)
+	{
+		cout << pr <<"dubletowy " << rr[1] << "\n"; //rekurencja :)
+		int r[2] = { 0,rr[1] };
+		//i1 = 5;
+		readinput(r, p, b, e, 0, 0);
+	}
+	if (v == 4)
+	{
+		//cout << "wykonano ruch dubletowy\n";
+		//i1 = 5;
+		
+		return 0;
+
+
+	}
+	if (v == -1)
+	{
+		cout << "prosze sprobowac ponownie\n";
+		if (checkDbl(rr))
+		{
+			//i1 = 5;
+		}
+		readinput(rr, p, b, e, 0, 0);
+
+	}
+}
+
+int cinCheck(char pi[MAXARGLEN], int rr[2], player* p, board* b, player* e)
+{
+	if (!strcmp(pi, "quit")) {return 1; }
+	else if (!strcmp(pi, "save")){
+		
+		saveGame(*p, *e, *b);
+		return 2;
+	}
+	else if (!strcmp(pi, "load")) {
+		
+		loadGame(p, e, b, 0);
+		return 3;
+	}
+	else if (!strcmp(pi, "leaderboard")) {
+		
+		loadLeaderboard(*b);
+		return 4;
+	}
+	else if (!strcmp(pi, "replay")) {
+		
+		(p->id == 1 ? replayMode(p, e, b, -1) : replayMode(e, p, b, -1));
+		return 5;
+	}
+	else if (!strcmp(pi, "move") || !strcmp(pi, "MOVE")){
+		return 6;
+	}
+	return 0;
+}
+
+int isEmpty(player* p, board* b, int rr[2])
+{
+	rollInfo(p);
+	printHints(rr, p, b);
+
+	if (p->possiblemoves == 0 || p->movecount <= 0) {
+		
+		printBoard(*b);
+		return 1;
+	}
+	return 0;
+
+}
+
+
+
+int readinput(int rr[2], player* p, board* b, player* e, int a1, int a2)
 {
 	//getLegalMoves(rollresult, p, *b);
+	//rr = rollresult;
+	//e = enemy;
 
 	int i1 = 1;
-	if (rollresult[0] == rollresult[1])
+	if (rr[0] == rr[1])
 	{
 		i1 = 0;
 	}
 
 	for (i1; i1 < 2; i1++)
 	{
-		rollInfo(p);
-		printHints(rollresult, p, b);
-
-
-
-		char playerinput[MAXARGLEN];
+		
+		char pi[MAXARGLEN];
 		int arg1, arg2;
 
-
-		if (p->possiblemoves == 0 || p->movecount <= 0) {
-			//if (p->possiblemoves == 0 ) {
-				//cout << "pusta tablica" << endl;
-			printBoard(*b);
+		if (isEmpty(p,b, rr))
 			return 0;
-		}
 
 		if (a1 && a2)
 		{
-			playerinput[0] = 'm';
-			playerinput[1] = 'o';
-			playerinput[2] = 'v';
-			playerinput[3] = 'e';
-			playerinput[4] = '\0';
+			pi[0] = 'm';
+			pi[1] = 'o';
+			pi[2] = 'v';
+			pi[3] = 'e';
+			pi[4] = '\0';
 			arg1 = a1;
 			arg2 = a2;
 		}
-		else { cin >> playerinput; }
+		else { cin >> pi; }
+		
+		//checking 
+		int x=cinCheck(pi, rr, p, b,e);
 
-		if (!strcmp(playerinput, "quit") || !strcmp(playerinput, "QUIT")) { exit(1); return -1; }
-		else if (!strcmp(playerinput, "save") || !strcmp(playerinput, "SAVE")) { i1 = 5; saveGame(*p, *enemy, *b);readinput(rollresult, p, b, enemy, 0, 0); }
-		else if (!strcmp(playerinput, "load") || !strcmp(playerinput, "LOAD")) { i1 = 5; loadGame(p, enemy, b, 0); readinput(rollresult, p, b, enemy, 0, 0); }
-		else if (!strcmp(playerinput, "leaderboard") || !strcmp(playerinput, "LEADERBOARD")) { i1 = 5; loadLeaderboard(*b); readinput(rollresult, p, b, enemy, 0, 0); }
-		else if (!strcmp(playerinput, "replay") || !strcmp(playerinput, "REPLAY")) {
-			i1 = 5; (p->id == 1 ? replayMode(p, enemy, b, -1) : replayMode(enemy, p, b, -1));readinput(rollresult, p, b, enemy, 0, 0);
-		} //todo dziala
-		else if (!strcmp(playerinput, "move") || !strcmp(playerinput, "MOVE"))
+		if (x==1) { exit(1); return -1; }
+		if (x == 2) {
+			AGAIN
+		}
+		if (x == 3)
+		{
+			AGAIN
+		}
+		if (x == 4)
+		{
+			AGAIN
+		}
+		if (x == 5)
+		{
+			AGAIN
+		}
+		if (x == 6)
 		{
 			if (!(a1 && a2)) { cin >> arg1 >> arg2; }
 
-			//cout << playerinput << " - " << arg1 << " - " << arg2 << endl;
-			int resultinput[2] = { arg1,arg2 };
+			//cout << pi << " - " << arg1 << " - " << arg2 << endl;
+			int ri[2] = { arg1,arg2 };
+			//ri=resultinput
 
 			//kontrola ruchu
+			
 
-			if (!checkMandatoryMove(p, b, resultinput))
+			if (!checkMandatoryMove(p, b, ri))
 			{
-				printBoard(*b);
-				cout << "prosze wykonac obowiazkowe bicie" << endl;
-				if (checkDbl(rollresult)) { i1 = STOP; }
-				readinput(rollresult, p, b, enemy, 0, 0);
+				PROMPT
+				if (checkDbl(rr)) { i1 = 5; }
+				readinput(rr, p, b, e, 0, 0);
 				return 0;
 			}
 
-			int val = move(rollresult, p, b, resultinput, enemy);
+			//kontekst menu
 
-			printBoard(*b);
+			valCheck(move(rr, p, b, ri, e), rr, p, b, e, ri);
 
-			if (val != -1)
-			{
-				saveHistory(resultinput, *p, b, rollresult);
-			}
-
-			if (val == 0)
-			{
-				cout << "wykonano polowiczny ruch " << rollresult[1] << endl; //rekurencja :)
-				int rr[2] = { 0,rollresult[1] };
-				readinput(rr, p, b, enemy, 0, 0);
-			}
-			else if (val == 1)
-			{
-				cout << "wykonano polowiczny ruch " << rollresult[0] << endl; //rekurencja :)
-				int rr[2] = { 0,rollresult[0] };
-				readinput(rr, p, b, enemy, 0, 0);
-			}
-			else if (val == 2)
-			{
-				cout << "wykonano ruch" << endl;
-			}
-			else if (val == 3)
-			{
-				cout << "wykonano polowiczny ruch dubletowy " << rollresult[1] << endl; //rekurencja :)
-				int rr[2] = { 0,rollresult[1] };
-				i1 = 5;
-				readinput(rr, p, b, enemy, 0, 0);
-
-				break;
-			}
-			else if (val == 4)
-			{
-				cout << "wykonano ruch dubletowy" << endl;
-				i1 = 5;
-				//clearPossibleMoves(p);
-				return 0;
-
-
-			}
-			else if (val == -1)
-			{
-				cout << "prosze sprobowac ponownie" << endl;
-				if (checkDbl(rollresult)) { i1 = STOP; }
-				readinput(rollresult, p, b, enemy, 0, 0);
-
-			}
-			else if (val == 100)
-			{
-				cout << "wygrana" << endl;
-				main(); //todo wywolanie maina podczas wygranej
-				return -1;
-			}
-
-
-			//cout<<i1<<endl;
 
 		}
 	}
+	//return 0;
+
 
 }
 
