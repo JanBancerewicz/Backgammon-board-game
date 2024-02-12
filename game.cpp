@@ -19,35 +19,28 @@ int main()
 	p1.id = 1;
 	p2.id = 2;
 
-	
-	//int debugroll[2] = { 1,3 };
-	//int debuginput[2] = { 24,23 };
-
 	//cloneHistory();
 	
 	
 	printBoard(b);
 
-	//readinput(debugroll, &p1, &b, &p2, 24, 23); // todo wykonanie testowego ruchu dziala
 
-	whoStarts(&p1, &b, &p2); // wykonanie pierwszego ruchu //todo naprawienie buga
-
-	
-	//todo naprawienie buga z zapisem gry
+	whoStarts(&p1, &b, &p2);
 
 	while (b.outside[0] < MAXOUTSIDE && b.outside[1] < MAXOUTSIDE) //magiczna petla
 	{
 
-		int* p = roll(&p2); //todo fix cout here
+		int* p = roll(&p2);
 		int rollresult[2] = { *(p + 0),*(p + 1) };
-		//int rollresult[2] = { 1,3 };
+		
 
+		
 
 
 		if (readinput(rollresult, &p2, &b, &p1, 0, 0) == -1) { return 0; }
 		b.round++;
 		
-		//----------------------------------------------
+		
 		
 		printBoard(b);
 
@@ -56,8 +49,8 @@ int main()
 		p = roll(&p1);
 		rollresult[0] = *(p + 0);
 		rollresult[1] = *(p + 1);
-		//int rollresult[2] = { 1,3 };
-		;
+		
+		
 
 		if (readinput(rollresult, &p1, &b, &p2, 0, 0) == -1) { return 0; }
 		b.round++;
