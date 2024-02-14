@@ -41,8 +41,6 @@ The game will prompt players for their moves. Enter the point number from which 
 
 - **Graphical User Interface (GUI):** Enjoy a visually appealing interface designed for smooth interaction.
 
-- **Doubling Cube:** Implementation of the doubling cube feature adds an extra layer of strategy to the game.
-
 - **Ingame hints for possible moves:** This feature makes the game much more consistent and enjoyable.
 
 - **Save/Load Game:** Save your progress and resume games later.
